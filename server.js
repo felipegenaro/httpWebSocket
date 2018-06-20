@@ -7,7 +7,7 @@ var server = http.createServer(function(request, response) {
     response.end();
 });
 server.listen(8080, function() {
-    console.log((new Date()) + ' Server is listening on port 8080');
+    console.log((new Date()) + ' Server is listening on port 8080');    //3000
 });
 
 wsServer = new WebSocketServer({
@@ -15,6 +15,7 @@ wsServer = new WebSocketServer({
     autoAcceptConnections: false
 });
 
+// bloquear origens indefinidas. ou range de ip.
 function originIsAllowed(origin) {
   return true;
 }
@@ -49,4 +50,3 @@ function log(content){
 
 	logger.write(content + "\n");
 }
-

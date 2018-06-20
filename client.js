@@ -19,15 +19,19 @@ client.on('connect', function(connection) {
     //     }
     // });
     
-    function sendNumber() {
+    function sendData() {
         if (connection.connected) {
-            var msgUtf8 = 6;
-            connection.sendUTF(msgUtf8);
+            // var msgData = 6;
+            // var msgData = "alo";
+            var msgData = Math.floor(Math.random() * 101);
+            connection.sendUTF(msgData);                        // toString
 
-            setTimeout(sendNumber, 1000);
+            setTimeout(sendData, 1000);
         }
     }
-    sendNumber();
+    sendData();
 });
 
 client.connect('ws://localhost:8080/', 'echo-protocol');
+
+// ws://<ip>:<port>/
