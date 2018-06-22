@@ -1,13 +1,16 @@
 var WebSocketServer = require('websocket').server;
 var http = require('http');
+var dateFormat = require('dateformat')
+var date = dateFormat((new Date()), "dddd HH:MM:ss, dd/mm/yyyy, ")
 
 var server = http.createServer(function(request, response) {
-    console.log((new Date()) + ' Received request for ' + request.url);
+    console.log(date + ' Received request for ' + request.url);
     response.writeHead(404);
     response.end();
 });
-server.listen(8080, function() {
-    console.log((new Date()) + ' Server is listening on port 8080');    //3000
+server.listen(81, function() {
+    var msgContent = (date + ' Server is listening on port 81');
+    console.log(msgContent);    // 80 / 82
 });
 
 wsServer = new WebSocketServer({
@@ -15,7 +18,7 @@ wsServer = new WebSocketServer({
     autoAcceptConnections: false
 });
 
-// bloquear origens indefinidas. ou range de ip.
+// bloquear origens
 function originIsAllowed(request) {
     if(request) return false;
     else return true;
@@ -23,30 +26,39 @@ function originIsAllowed(request) {
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.url)) {
       request.reject();
-      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+      var msgContent = (date + ' Connection from origin ' + request.origin + ' rejected.');
+      console.log(msgContent);
+      logFiles(msgContent, "connLog");
       return;
     }
     
-    var connection = request.accept('echo-protocol', request.origin);
-    console.log((new Date()) + request.origin + ' Connection accepted.');
+    var connection = request.accept();  // 'echo-protocol'
+    var ip = connection.remoteAddress.toString();
+    ip = ip.substring(ip.lastIndexOf(':')+1);
+    var msgContent = (date + ' Connection accepted from: ' + ip);
+    console.log(msgContent);
+    logFiles(msgContent, "connLog");
+
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-        	var content = 'Received Message: ' + message.utf8Data + ' From: ' + connection.remoteAddress + ' at ' + (new Date());
-            console.log(content);
+        	var msgContent = 'Received Message: ' + message.utf8Data + ' From: ' + ip + ' at ' + date;
+            console.log(msgContent);
             // connection.sendUTF(message.utf8Data);
-            logFile(content);
+            logFiles(msgContent, "msgLog");
         }
     });
     connection.on('close', function(reasonCode, description) {
-        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+        var msgContent = (date + ' Peer ' + ip + ' disconnected.');
+        console.log(msgContent);
+        logFiles(msgContent, "connLog");
     });
 });
 
-var fs = require('fs');
-function logFile(content){
-	var logger = fs.createWriteStream('log.txt', {
-	  flags: 'a'
-	});
+var fs = require('fs')
+function logFiles(content, type) {
+    var logger = fs.createWriteStream(type + '.txt', {
+      flags: 'a'
+    });
 
-	logger.write(content + "\n");
+    logger.write(content + "\n");
 }

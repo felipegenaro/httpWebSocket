@@ -32,6 +32,6 @@ client.on('connect', function(connection) {
     sendData();
 });
 
-client.connect('ws://localhost:8080/', 'echo-protocol');
+client.connect('ws://localhost:81/');
 
 // ws://<ip>:<port>/
